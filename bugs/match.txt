@@ -1,5 +1,3 @@
-# 3 outcomes clustering groups with continuous activity
-
 model {
   for (i in 1:N) {
     for (j in 1:ninter) {
