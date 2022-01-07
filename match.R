@@ -1,14 +1,5 @@
-post_sas = function(response, activity, N, ninter, p0, mu1_h0, a0, mu2_h0, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
-  p1 = 0.25 + 0.5 * as.numeric(rowMeans(response) > p0 + 0.15)
-  p2 = 0.25 + 0.5 * as.numeric(rowMeans(activity) > a0 + 0.15)
-  dat = list(response = response,
-             activity = activity,
-             N = N,
-             ninter = ninter,
-             p1 = p1,
-             p2 = p2,
-             mu1_h0 = mu1_h0, 
-             mu2_h0 = mu2_h0)
+post_sas = function(y, hist, x, n1, n, p, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
+  dat = list(y = y, hist = hist, x = x, n1 = n1, n = n, p = p)
   Z = array(0, dim = c(N, ninter, 2))
   for (i in 1:N) {
     Z[i, , ] = mvrnorm(ninter, c(mu1_h0[i], mu2_h0[i]), matrix(c(1, 0.5, 0.5, 1), 2, 2))

@@ -1,22 +1,21 @@
 model {
-  for (i in 1:N) {
-    for (j in 1:ninter) {
-      response[i, j] ~ dinterval(Z[i, j, 1], 0)
-      activity[i, j] ~ dinterval(Z[i, j, 2], 0)
-      Z[i, j, 1:2] ~ dmnorm(c(mu1_h0[i] + mu1[i], mu2_h0[i] + mu2[i]), prec[i, , ])
-    }
-    mu1[i] <- ifelse(ss1[i] == 0, 0, diff1)
-    mu2[i] <- ifelse(ss2[i] == 0, 0, diff2)
-    ss1[i] ~ dbern(p1[i])
-    ss2[i] ~ dbern(p2[i])
-    prec[i, 1, 1] <- 1.0 / (1 - rho[i] * rho[i])
-    prec[i, 1, 2] <- -rho[i] / (1 - rho[i] * rho[i])
-    prec[i, 2, 1] <- -rho[i] / (1 - rho[i] * rho[i])
-    prec[i, 2, 2] <- 1.0 / (1 - rho[i] * rho[i])
-    rho[i] ~ dunif(-1, 1)
+  for (i in 1:n1) {
+    y[i] ~ dinterval(mu[i], 0)
+    mu[i] = u01 * x[i, 1] + u02 * x[i, 2]
   }
-  diff1 ~ dnorm(1, tau1)T(0, )
-  diff2 ~ dnorm(1, tau2)T(0, )
+  for (i in (n1 + 1):N) {
+    y[i] ~ dinterval(mu[i], 0)
+    mu[i] = beta11[i] * x[i, 1] + beta12[i] * x[i, 2]
+    beta11[i] <- ifelse(w[i] == 0, u01, u11)
+    beta12[i] <- ifelse(w[i] == 0, u02, u12)
+    w[i] ~ dbern(0.5)
+  }
+  u01 ~ dnorm(m0, tau0)
+  u02 ~ dnorm(m0, tau0)
+  u11 ~ dnorm(m1, tau1)
+  u12 ~ dnorm(m1, tau1)
+  tau0 ~ dgamma(0.001, 0.001)
   tau1 ~ dgamma(0.001, 0.001)
-  tau2 ~ dgamma(0.001, 0.001)
+  m0 ~ dnorm(0, 0.001)
+  m1 ~ dnorm(0, 0.001)
 }

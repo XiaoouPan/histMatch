@@ -18,15 +18,16 @@ delta <- all.trial$status
 study = all.trial$STUDY
 all.trial$history = as.factor(all.trial$STUDY != 1203)
 index = which(all.trial$arm == 0)
-x.train.con <- all.trial[index, c("history", "SEX_ID", "ps", "WBC", "age_floor", "trant")]
+#x.train.con <- all.trial[index, c("history", "SEX_ID", "ps", "WBC", "age_floor", "trant")]
+x.train.con <- all.trial[index, c("history", "age_floor")]
 times.con <- times[index]
 delta.con <- delta[index]
 ## x.test.con for proximity score calculation
-x.test.con = all.trial[index, c("SEX_ID", "ps", "WBC", "age_floor", "trant")]
+#x.test.con = all.trial[index, c("SEX_ID", "ps", "WBC", "age_floor", "trant")]
 study = study[index]
 
 sapply(x.train.con, function(y) sum(is.na(y)))
-miss.index = which(is.na(x.train.con$ps) | is.na(x.train.con$WBC))
+#miss.index = which(is.na(x.train.con$ps) | is.na(x.train.con$WBC))
 x.train.con = x.train.con[-miss.index, ]
 times.con = times.con[-miss.index]
 delta.con = delta.con[-miss.index]
@@ -34,11 +35,11 @@ x.test.con = x.test.con[-miss.index, ]
 study = study[-miss.index]
 
 ## A toy case with 20 samples
-toy.index = c(1:10, 255:264)
-x.train.con = x.train.con[toy.index, ]
+toy.index = c(1:10, 262:271)
+x.train.con$history = as.numeric(x.train.con$history) - 1
+x.train.con = data.matrix(x.train.con[toy.index, ])
 times.con = times.con[toy.index]
 delta.con = delta.con[toy.index]
-x.test.con = x.test.con[toy.index, ]
 study = study[toy.index]
 
 rf = randomForest(
@@ -53,7 +54,10 @@ rf = randomForest(
 score = predict(rf, newdata = x.test.con)  
 prox = rf$proximity ## proximity score: a 1457 * 1457 matrix
 
-surv.proc = surv.pre.bart(times = times.con, delta = delta.con, x.train = x.train.con, x.test = x.train.con) 
+## Survival data processing
+surv.proc = surv.pre.bart(times = times.con, delta = delta.con, x.train = x.train.con, x.test = x.train.con, K = 3) 
+y.train = surv.proc$y.train ## 40
+x.train = surv.proc$tx.train ## 40 * 3
 
 
 
