@@ -1,11 +1,11 @@
 model {
   for (i in 1:n1) {
     y[i] ~ dinterval(mu[i], 0)
-    mu[i] = u01 * x[i, 1] + u02 * x[i, 2]
+    mu[i] <- u01 * x[i, 1] + u02 * x[i, 2]
   }
   for (i in (n1 + 1):N) {
     y[i] ~ dinterval(mu[i], 0)
-    mu[i] = beta11[i] * x[i, 1] + beta12[i] * x[i, 2]
+    mu[i] <- beta11[i] * x[i, 1] + beta12[i] * x[i, 2]
     beta11[i] <- ifelse(w[i] == 0, u01, u11)
     beta12[i] <- ifelse(w[i] == 0, u02, u12)
     w[i] ~ dbern(0.5)
