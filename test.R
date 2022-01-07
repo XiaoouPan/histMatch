@@ -11,15 +11,6 @@ library(caret)
 
 load("allTrials.RData") 
 
-#################################### survival curves of control groups #####################################
-getSurv = function(bart.con) {
-  time.index <- seq(1, length(bart.con$surv.test.mean), by = length(bart.con$times)) #by K (number of time pts) 
-  bart.con.surv <- rep(NA, length(bart.con$times)) 
-  for (i in seq(length(bart.con$times)) - 1) { 
-    bart.con.surv[i+1] <- mean(bart.con$surv.test.mean[time.index + i], na.rm = TRUE)
-  }
-  return (bart.con.surv)
-}
 
 trial.num = c(1203, 106, 10201, 10603, 1900)
 trial.id = c("S1203", "S0106", "C10201", "C10603", "E1900")
@@ -38,25 +29,6 @@ bart.5.con <- mc.surv.bart(x.train = x.train.con, times = times.con,
 bart.5.con.surv = getSurv(bart.5.con)
 
 
-
-
-tikz("plot.tex", standAlone = TRUE, width = 7, height = 5)
-plot(c(0, bart.1.con$times), c(1, bart.1.con.surv), type = "s", lwd = 5, cex = 1, col = "red", axes = FALSE, xlim = c(0, 121), 
-     ylim = c(0, 1), xlab = "", ylab = "")
-lines(c(0, bart.2.con$times), c(1, bart.2.con.surv), type = "s", lwd = 5, cex = 1, col = "blue") 
-lines(c(0, bart.3.con$times), c(1, bart.3.con.surv), type = "s", lwd = 5, cex = 1, col = "darkorchid") 
-lines(c(0, bart.4.con$times), c(1, bart.4.con.surv), type = "s", lwd = 5, cex = 1, col = "gold4") 
-lines(c(0, bart.5.con$times), c(1, bart.5.con.surv), type = "s", lwd = 5, cex = 1, col = "seagreen") 
-color = c("blue", "red", "gold4", "seagreen", "darkorchid")
-labels = c("\\texttt{S0106}", "\\texttt{S1203}", "\\texttt{C10603}", "\\texttt{E1900}", "\\texttt{C10201}")
-legend("topright", labels, col = color, lwd = 5, cex = 1.7, box.lwd = 1, bg = "white")
-axis(1, line = 0, cex.axis = 1.5)
-axis(2, line = 0, cex.axis = 1.5)
-box()
-title(xlab = "Time in Months", line = 3, cex.lab = 2)
-title(ylab = "Survival Probability", line = 2.5, cex.lab = 1.6)
-dev.off() 
-tools::texi2dvi("plot.tex", pdf = T)
 
 
 
