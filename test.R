@@ -11,27 +11,6 @@ library(caret)
 
 load("allTrials.RData") 
 
-
-trial.num = c(1203, 106, 10201, 10603, 1900)
-trial.id = c("S1203", "S0106", "C10201", "C10603", "E1900")
-num = 5
-index = which(all.trial$STUDY == trial.num[num])
-times <- all.trial$fu_mos[index]
-delta <- all.trial$status[index]
-x.train <- all.trial[index, c("arm", "SEX_ID", "ps", "WBC", "npm1", "flt3", "age_floor", "Cyto", "trant")]
-x.train.con <- data.matrix(filter(x.train, arm == 0)[, -1])
-times.con <- times[x.train$arm == 0]
-delta.con <- delta[x.train$arm == 0]
-
-bart.5.con <- mc.surv.bart(x.train = x.train.con, times = times.con, 
-                           delta = delta.con, x.test = x.train.con, 
-                           K = 40, ntree = 100, mc.cores = 8, seed = 321) 
-bart.5.con.surv = getSurv(bart.5.con)
-
-
-
-
-
 ################################## propensity score matching #############################################
 library(randomForest)
 times <- all.trial$fu_mos
@@ -79,15 +58,6 @@ for (i in 1:m) {
 study = as.factor(study)
 levels(study) = c("S0106", "S1203", "E1900", "C10201", "C10603")
 table(study[match])
-df.plot = data.frame(group = levels(study[match]), value = as.numeric(table(study[match])))
-tikz("plot.tex", standAlone = TRUE, width = 7, height = 5)
-ggplot(df.plot, aes(x = "", y = value, fill = group)) + geom_bar(stat = "identity") + coord_polar("y", start = 0) +
-  xlab("Frequency") + ylab("") +
-  theme(legend.title = element_blank(), legend.text = element_text(size = 10), legend.key.size = unit(0.5, "cm"),
-        legend.background = element_rect(fill = alpha("white", 0)), axis.text = element_text(size = 15), 
-        axis.title = element_text(size = 20))
-dev.off() 
-tools::texi2dvi("plot.tex", pdf = T)
 
 
 #################################### historical borrowing with 1 trial #####################################
@@ -143,25 +113,3 @@ bart.con <- mc.surv.bart(x.train = x.train.con, times = times.con,
                            delta = delta.con, x.test = x.test.con, 
                            K = 40, ntree = 100, mc.cores = 8, seed = 321) 
 
-
-#### all trials
-index.test = which(all.trial$STUDY == 1203)
-times <- all.trial$fu_mos
-delta <- all.trial$status
-x.train <- all.trial[, c("arm", "SEX_ID", "ps", "WBC", "npm1", "flt3", "age_floor", "Cyto", "trant", trial.name)]
-x.train.trt <- data.matrix(filter(x.train, arm == 1)[, -1])
-x.train.con <- data.matrix(filter(x.train, arm == 0)[, -1])
-x.test <- all.trial[index.test, c("arm", "SEX_ID", "ps", "WBC", "npm1", "flt3", "age_floor", "Cyto", "trant", trial.name)]
-x.test.trt <- data.matrix(filter(x.test , arm == 1)[, -1])
-x.test.con <- data.matrix(filter(x.test , arm == 0)[, -1])
-times.trt <- times[x.train$arm == 1]
-times.con <- times[x.train$arm == 0]
-delta.trt <- delta[x.train$arm == 1]
-delta.con <- delta[x.train$arm == 0]
-
-bart.all.trt <- mc.surv.bart(x.train = x.train.trt, times = times.trt, 
-                           delta = delta.trt, x.test = x.test.trt, 
-                           K = 40, ntree = 100, mc.cores = 8, seed = 321) 
-bart.all.con <- mc.surv.bart(x.train = x.train.con, times = times.con, 
-                           delta = delta.con, x.test = x.test.con, 
-                           K = 40, ntree = 100, mc.cores = 8, seed = 321) 
