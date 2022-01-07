@@ -18,11 +18,10 @@ delta <- all.trial$status
 study = all.trial$STUDY
 all.trial$history = as.factor(all.trial$STUDY != 1203)
 index = which(all.trial$arm == 0)
-#x.train.con <- all.trial[index, c("history", "SEX_ID", "ps", "WBC", "npm1", "flt3", "age_floor", "Cyto", "trant")]
 x.train.con <- all.trial[index, c("history", "SEX_ID", "ps", "WBC", "age_floor", "trant")]
 times.con <- times[index]
 delta.con <- delta[index]
-#x.test.con = all.trial[index, c("SEX_ID", "ps", "WBC", "npm1", "flt3", "age_floor", "Cyto", "trant")]
+## x.test.con for proximity score calculation
 x.test.con = all.trial[index, c("SEX_ID", "ps", "WBC", "age_floor", "trant")]
 study = study[index]
 
@@ -41,13 +40,10 @@ rf = randomForest(
   proximity = TRUE,
   na.action = na.omit
 )
-rf
-plot(rf)
-score = predict(rf, newdata = x.test.con)
-table(observed = x.train.con$history, predicted = score)
-
-
-prox = rf$proximity
+#rf
+#plot(rf)
+score = predict(rf, newdata = x.test.con)  
+prox = rf$proximity ## proximity score: a 1457 * 1457 matrix
 index.cur = which(study == 1203)
 m = length(index.cur)
 match = rep(0, m)
@@ -84,32 +80,6 @@ bart.4.trt <- mc.surv.bart(x.train = x.train.trt, times = times.trt,
                            delta = delta.trt, x.test = x.test.trt, 
                            K = 40, ntree = 100, mc.cores = 8, seed = 321) 
 bart.4.con <- mc.surv.bart(x.train = x.train.con, times = times.con, 
-                           delta = delta.con, x.test = x.test.con, 
-                           K = 40, ntree = 100, mc.cores = 8, seed = 321) 
-
-### borrowing with proximity score matching
-trial.num = c(106, 10201, 10603, 1900)
-trial.name = c("dummy_s0106", "dummy_c10201", "dummy_c10603", "dummy_e1900")
-trial.id = c("S0106", "C10201", "C10603", "E1900")
-index = union(which(all.trial$STUDY == 1203), match)
-index.test = which(all.trial$STUDY == 1203)
-times <- all.trial$fu_mos[index]
-delta <- all.trial$status[index]
-x.train <- all.trial[index, c("arm", "SEX_ID", "ps", "WBC", "age_floor", "trant")]
-x.train.trt <- data.matrix(filter(x.train, arm == 1)[, -1])
-x.train.con <- data.matrix(filter(x.train, arm == 0)[, -1])
-x.test <- all.trial[index.test, c("arm", "SEX_ID", "ps", "WBC", "age_floor", "trant")]
-x.test.trt <- data.matrix(filter(x.test , arm == 1)[, -1])
-x.test.con <- data.matrix(filter(x.test , arm == 0)[, -1])
-times.trt <- times[x.train$arm == 1]
-times.con <- times[x.train$arm == 0]
-delta.trt <- delta[x.train$arm == 1]
-delta.con <- delta[x.train$arm == 0]
-
-bart.trt <- mc.surv.bart(x.train = x.train.trt, times = times.trt, 
-                           delta = delta.trt, x.test = x.test.trt, 
-                           K = 40, ntree = 100, mc.cores = 8, seed = 321) 
-bart.con <- mc.surv.bart(x.train = x.train.con, times = times.con, 
                            delta = delta.con, x.test = x.test.con, 
                            K = 40, ntree = 100, mc.cores = 8, seed = 321) 
 
