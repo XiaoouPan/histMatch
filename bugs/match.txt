@@ -1,14 +1,16 @@
 model {
   for (i in 1:n1) {
-    y[i] ~ dinterval(mu[i], 0)
+    y[i] ~ dinterval(z[i], 0)
+    z[i] ~ dnorm(mu[i], 1)
     mu[i] <- u01 * x[i, 1] + u02 * x[i, 2]
   }
-  for (i in (n1 + 1):N) {
-    y[i] ~ dinterval(mu[i], 0)
+  for (i in (n1 + 1):n) {
+    y[i] ~ dinterval(z[i], 0)
+    z[i] ~ dnorm(mu[i], 1)
     mu[i] <- beta11[i] * x[i, 1] + beta12[i] * x[i, 2]
-    beta11[i] <- ifelse(w[i] == 0, u01, u11)
-    beta12[i] <- ifelse(w[i] == 0, u02, u12)
-    w[i] ~ dbern(0.5)
+    beta11[i] <- ifelse(w[i - n1] == 0, u01, u11)
+    beta12[i] <- ifelse(w[i - n1] == 0, u02, u12)
+    w[i - n1] ~ dbern(0.5)
   }
   u01 ~ dnorm(m0, tau0)
   u02 ~ dnorm(m0, tau0)

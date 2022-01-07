@@ -1,9 +1,9 @@
-post_sas = function(y, x, n1, n, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
+hist_match = function(y, x, n1, n, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
   dat = list(y = y, x = x, n1 = n1, n = n)
-  Z = array(0, dim = c(N, ninter, 2))
   thismodel = try(jags.model(file = "bugs/match.txt", 
                              data = dat, 
-                             inits = list(w = c(rep(0, n1), rep(1, n - n1)),
+                             inits = list(z = y,
+                                          w = rep(1, n -  n1),
                                           u01 = 0,
                                           u02 = 0,
                                           u11 = 0,

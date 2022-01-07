@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("~/Dropbox/Mayo-intern/aim2/data")
 
 library(dplyr)
 library(BART)
@@ -8,8 +7,9 @@ library(survival)
 library(forestplot)
 library(tikzDevice)
 library(caret)
+library(rjags)
 
-load("allTrials.RData") 
+load("~/Dropbox/Mayo-intern/aim2/data/allTrials.RData") 
 
 ################################## propensity score matching #############################################
 library(randomForest)
@@ -58,6 +58,8 @@ prox = rf$proximity ## proximity score: a 1457 * 1457 matrix
 surv.proc = surv.pre.bart(times = times.con, delta = delta.con, x.train = x.train.con, x.test = x.train.con, K = 3) 
 y.train = surv.proc$y.train ## 40
 x.train = surv.proc$tx.train ## 40 * 3
+x.train = x.train[, c(1, 3)]
 
+fit = hist_match(y = y.train, x = x.train, n1 = 19, n = 40, n.adapt = 1000, n.burn = 1000, n.iter = 1000)
 
 
