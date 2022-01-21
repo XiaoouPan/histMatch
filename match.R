@@ -11,6 +11,6 @@ hist_match = function(y, x, n1, n, n.adapt = 5000, n.burn = 5000, n.iter = 10000
   res.bugs = try(jags.samples(thismodel, 
                               variable.names = c("w", "u0", "u1"),
                               n.iter = n.iter, progress.bar = "none"), silent = TRUE)
-  w_rec = matrix(res.bugs$w, n, n.iter)
+  w_rec = matrix(res.bugs$w, n - n1, n.iter)
   return (list("w_rec" = w_rec))
 }
