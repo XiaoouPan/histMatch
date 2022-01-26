@@ -2,21 +2,22 @@ model {
   for (i in 1:n1) {
     y[i] ~ dinterval(z[i], 0)
     z[i] ~ dnorm(mu[i], 1)
-    mu[i] <- u0[1] * x[i, 1] + u0[2] * x[i, 2] + u0[3] * x[i, 3] + u0[4] * x[i, 4] + u0[5] * x[i, 5] + u0[6] * x[i, 6]
+    mu[i] <- u0[1] * x[i, 1] + u0[2] * x[i, 2] + u0[3] * x[i, 3] + u0[4] * x[i, 4] + u0[5] * x[i, 5] + u0[6] * x[i, 6] + u0[7] * x[i, 7]
   }
   for (i in (n1 + 1):n) {
     y[i] ~ dinterval(z[i], 0)
     z[i] ~ dnorm(mu[i], 1)
-    mu[i] <- beta1[i] * x[i, 1] + beta2[i] * x[i, 2] + beta3[i] * x[i, 3] + beta4[i] * x[i, 4] + beta5[i] * x[i, 5] + beta6[i] * x[i, 6]
+    mu[i] <- beta1[i] * x[i, 1] + beta2[i] * x[i, 2] + beta3[i] * x[i, 3] + beta4[i] * x[i, 4] + beta5[i] * x[i, 5] + beta6[i] * x[i, 6] + beta7[i] * x[i, 7]
     beta1[i] <- ifelse(w[i - n1] == 0, u0[1], u1[1])
     beta2[i] <- ifelse(w[i - n1] == 0, u0[2], u1[2])
     beta3[i] <- ifelse(w[i - n1] == 0, u0[3], u1[3])
     beta4[i] <- ifelse(w[i - n1] == 0, u0[4], u1[4])
     beta5[i] <- ifelse(w[i - n1] == 0, u0[5], u1[5])
     beta6[i] <- ifelse(w[i - n1] == 0, u0[6], u1[6])
+    beta7[i] <- ifelse(w[i - n1] == 0, u0[7], u1[7])
     w[i - n1] ~ dbern(0.5)
   }
-  for (j in 1:6) {
+  for (j in 1:7) {
     u0[j] ~ dnorm(0, 0.001)
     u1[j] ~ dnorm(0, 0.001)
   }
