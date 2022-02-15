@@ -9,6 +9,7 @@ library(tikzDevice)
 library(caret)
 library(rjags)
 library(randomForest)
+library(psrwe)
 
 load("~/Dropbox/Mayo-intern/aim2/data/allTrials.RData") 
 
@@ -24,8 +25,47 @@ miss.index = which(is.na(x.train.con$ps) | is.na(x.train.con$WBC))
 x.train.con = x.train.con[-miss.index, ]
 times.con = times.con[-miss.index]
 delta.con = delta.con[-miss.index]
-#x.test.con = x.test.con[-miss.index, ]
+event = as.numeric(times.con <= 12 & delta.con == 1)
+history = as.numeric(x.train.con$STUDY == 1203)
+x.train.con$history = history
+x.train.con = as.data.frame(x.train.con)
+prop.fit = glm(history ~ SEX_ID + ps + WBC + age_floor + trant, family = 'binomial', data = x.train.con)
+prop.score = prop.fit$fitted.values
+dist.1203 = prop.score[which(x.train.con$STUDY == 1203)]
+dist.106 = prop.score[which(x.train.con$STUDY == 106)]
+dist.10201 = prop.score[which(x.train.con$STUDY == 10201)]
+dist.10603 = prop.score[which(x.train.con$STUDY == 10603)]
+dist.1900 = prop.score[which(x.train.con$STUDY == 1900)]
+dist = list(dist.1203, dist.106, dist.10201, dist.10603, dist.1900)
+cor.dist = diag(5)
+for (i in 1:4) {
+  for (j in (i + 1):5) {
+    cor.dist[i, j] = cor.dist[j, i] = get_distance(dist[[i]], dist[[j]], 'ovl')
+  }
+}
+omega = solve(cor.dist)
 
+n = min(length(dist.1203), length(dist.106), length(dist.10201), length(dist.10603), length(dist.1900))
+y = rbind(event[which(x.train.con$STUDY == 1203)][1:n], 
+          event[which(x.train.con$STUDY == 106)][1:n],
+          event[which(x.train.con$STUDY == 10201)][1:n],
+          event[which(x.train.con$STUDY == 10603)][1:n],
+          event[which(x.train.con$STUDY == 1900)][1:n])
+year = c(11, 2, 1, 6, 0)
+
+fit = mix_effect(y = y, year = year, omega = omega, n = n, n.adapt = 1000, n.burn = 1000, n.iter = 1000)
+alpha_post = fit$alpha_post
+beta_post = fit$beta_post
+tau_post = fit$tau_post
+
+rowMeans(alpha_post)
+mean(beta_post)
+mean(tau_post)
+
+
+
+
+## previous codes for survival analysis
 
 x.train.con$SEX_ID = as.numeric(x.train.con$SEX_ID) - 1
 x.train.con$ps1 = as.numeric(x.train.con$ps == 1)
@@ -42,6 +82,9 @@ size = rep(0, 5)
 study = c(1203, 106, 10201, 10603, 1900)
 for (i in 1:5) {
   size[i] = sum(x.train[, 2] == study[i])
+}
+for (i in 2:5) {
+  size[i] = size[i - 1] + size[i]
 }
 x.train = x.train[, -2]
 
