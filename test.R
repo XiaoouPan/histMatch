@@ -10,6 +10,7 @@ library(caret)
 library(rjags)
 library(randomForest)
 library(psrwe)
+library(xtable)
 
 load("~/Dropbox/Mayo-intern/aim2/data/allTrials.RData") 
 
@@ -53,7 +54,7 @@ y = rbind(event[which(x.train.con$STUDY == 1203)][1:n],
           event[which(x.train.con$STUDY == 1900)][1:n])
 year = c(11, 2, 1, 6, 0)
 
-fit = mix_effect(y = y, year = year, omega = omega, n = n, n.adapt = 1000, n.burn = 1000, n.iter = 1000)
+fit = mix_effect(y = y, year = year, omega = omega, n = n, n.adapt = 5000, n.burn = 5000, n.iter = 10000)
 alpha_post = fit$alpha_post
 beta_post = fit$beta_post
 tau_post = fit$tau_post
