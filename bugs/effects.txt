@@ -1,14 +1,9 @@
 model {
-  for (i in 1:n) {
-    for (j in 1:5) {
-      y[j, i] ~ dinterval(z[j, i], 0)
-    }
-    z[1:5, i] ~ dmnorm(mu, Omega)
-  }
   for (j in 1:5) {
-      mu[j] <- alpha[j] + beta * year[j]
-      alpha[j] ~ dnorm(0, 0.001)
+    y[j, ] ~ dbin(prob[j], size[j])
+    logit(prob[j]) <- alpha[j] + beta * year[j]
   }
+  alpha[1:5] ~ dmnorm(mu, Omega)
   beta ~ dnorm(0, 0.001)
   Omega <- tau * omega
   tau ~ dgamma(0.001, 0.001)
