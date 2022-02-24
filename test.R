@@ -21,7 +21,6 @@ x.train.con <- all.trial[index, c("STUDY", "SEX_ID", "ps", "WBC", "age_floor", "
 times.con <- times[index]
 delta.con <- delta[index]
 
-#sapply(x.train.con, function(y) sum(is.na(y)))
 miss.index = which(is.na(x.train.con$ps) | is.na(x.train.con$WBC))
 x.train.con = x.train.con[-miss.index, ]
 times.con = times.con[-miss.index]
@@ -44,17 +43,17 @@ for (i in 1:4) {
     cor.dist[i, j] = cor.dist[j, i] = get_distance(dist[[i]], dist[[j]], 'ovl')
   }
 }
-omega = solve(cor.dist)
+omega = solve(cor.dist) ## correlation matrix
 
-n = min(length(dist.1203), length(dist.106), length(dist.10201), length(dist.10603), length(dist.1900))
-y = rbind(event[which(x.train.con$STUDY == 1203)][1:n], 
-          event[which(x.train.con$STUDY == 106)][1:n],
-          event[which(x.train.con$STUDY == 10201)][1:n],
-          event[which(x.train.con$STUDY == 10603)][1:n],
-          event[which(x.train.con$STUDY == 1900)][1:n])
+size = c(length(dist.1203), length(dist.106), length(dist.10201), length(dist.10603), length(dist.1900))
+y = c(sum(event[which(x.train.con$STUDY == 1203)]), 
+      sum(event[which(x.train.con$STUDY == 106)]),
+      sum(event[which(x.train.con$STUDY == 10201)]),
+      sum(event[which(x.train.con$STUDY == 10603)]),
+      sum(event[which(x.train.con$STUDY == 1900)]))
 year = c(11, 2, 1, 6, 0)
 
-fit = mix_effect(y = y, year = year, omega = omega, n = n, n.adapt = 5000, n.burn = 5000, n.iter = 10000)
+fit = mix_effect(y = y, year = year, omega = omega, size = size, mu = rep(0, 5), n.adapt = 5000, n.burn = 5000, n.iter = 10000)
 alpha_post = fit$alpha_post
 beta_post = fit$beta_post
 tau_post = fit$tau_post
@@ -62,6 +61,15 @@ tau_post = fit$tau_post
 rowMeans(alpha_post)
 mean(beta_post)
 mean(tau_post)
+## posterior probability
+temp = rowMeans(alpha_post) + mean(beta_post) * year
+post_prob = 1 / (1 + exp(-temp))
+
+
+
+
+
+
 
 
 

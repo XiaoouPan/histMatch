@@ -26,26 +26,7 @@ hist_match = function(y, x, size, n.adapt = 5000, n.burn = 5000, n.iter = 10000)
                "u4_post" = u4_post, "tau_post" = tau_post))
 }
 
-mix_effect = function(y, year, omega, n, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
-  dat = list(y = y, year = year, omega = omega, n = n)
-  thismodel = jags.model(file = "bugs/effects.txt", 
-                         data = dat, 
-                         inits = list(z = y,
-                                      alpha = rep(0, 5),
-                                      beta = 0,
-                                      tau = 0.001),
-                         n.adapt = n.adapt)
-  update(thismodel, n.burn)
-  res.bugs = jags.samples(thismodel, 
-                          variable.names = c("alpha", "beta", "tau"),
-                          n.iter = n.iter)
-  alpha_post = matrix(res.bugs$alpha, 5, n.iter)
-  beta_post = as.numeric(res.bugs$beta)
-  tau_post = as.numeric(res.bugs$tau)
-  return (list("alpha_post" = alpha_post, "beta_post" = beta_post, "tau_post" = tau_post))
-}
-
-mix_effect2 = function(y, year, omega, size, mu, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
+mix_effect = function(y, year, omega, size, mu, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
   dat = list(y = y, year = year, omega = omega, size = size, mu = mu)
   thismodel = jags.model(file = "bugs/effects.txt", 
                          data = dat, 

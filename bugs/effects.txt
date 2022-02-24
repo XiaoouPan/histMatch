@@ -1,6 +1,6 @@
 model {
   for (j in 1:5) {
-    y[j, ] ~ dbin(prob[j], size[j])
+    y[j] ~ dbin(prob[j], size[j])
     logit(prob[j]) <- alpha[j] + beta * year[j]
   }
   alpha[1:5] ~ dmnorm(mu, Omega)
