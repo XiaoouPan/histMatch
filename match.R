@@ -44,3 +44,16 @@ mix_effect = function(y, year, omega, size, mu, n.adapt = 5000, n.burn = 5000, n
   return (list("alpha_post" = alpha_post, "beta_post" = beta_post, "tau_post" = tau_post))
 }
 
+naive = function(y, size, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {
+  dat = list(y = y, size = size)
+  thismodel = jags.model(file = "bugs/naive.txt", 
+                         data = dat, 
+                         inits = list(alpha = 0),
+                         n.adapt = n.adapt)
+  update(thismodel, n.burn)
+  res.bugs = jags.samples(thismodel, 
+                          variable.names = c("alpha"),
+                          n.iter = n.iter)
+  alpha_post = as.numeric(res.bugs$alpha)
+  return (alpha_post)
+}

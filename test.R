@@ -16,10 +16,16 @@ load("~/Dropbox/Mayo-intern/aim2/data/allTrials.RData")
 
 times <- all.trial$fu_mos
 delta <- all.trial$status
+## control
 index = which(all.trial$arm == 0)
 x.train.con <- all.trial[index, c("STUDY", "SEX_ID", "ps", "WBC", "age_floor", "trant")]
 times.con <- times[index]
 delta.con <- delta[index]
+## treatment
+index.trt = which(all.trial$arm == 1 & all.trial$STUDY == 1203)
+times.trt <- times[index.trt]
+delta.trt <- delta[index.trt]
+event.trt = as.numeric(times.trt <= 12 & delta.trt == 1)
 
 miss.index = which(is.na(x.train.con$ps) | is.na(x.train.con$WBC))
 x.train.con = x.train.con[-miss.index, ]
@@ -53,6 +59,7 @@ y = c(sum(event[which(x.train.con$STUDY == 1203)]),
       sum(event[which(x.train.con$STUDY == 1900)]))
 year = c(11, 2, 1, 6, 0)
 
+## fit the mixed effects model for control group
 fit = mix_effect(y = y, year = year, omega = omega, size = size, mu = rep(0, 5), n.adapt = 5000, n.burn = 5000, n.iter = 10000)
 alpha_post = fit$alpha_post
 beta_post = fit$beta_post
@@ -65,8 +72,13 @@ mean(tau_post)
 temp = rowMeans(alpha_post) + mean(beta_post) * year
 post_prob = 1 / (1 + exp(-temp))
 
+## fit the naive model for the trreatment group
+alpha.trt = naive(y = sum(event.trt), size = length(event.trt), n.adapt = 5000, n.burn = 5000, n.iter = 10000)
+## posterior probability
+temp = mean(alpha.trt) + mean(beta_post) * year[1]
+post_prob_trt = 1 / (1 + exp(-temp))
 
-
+post_prob_trt - post_prob[1] ## -0.08
 
 
 

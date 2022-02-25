@@ -1,0 +1,5 @@
+model {
+  y ~ dbin(prob, size)
+  logit(prob) <- alpha
+  alpha ~ dnorm(0, 0.001)
+}
