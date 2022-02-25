@@ -32,16 +32,18 @@ mix_effect = function(y, year, omega, size, mu, n.adapt = 5000, n.burn = 5000, n
                          data = dat, 
                          inits = list(alpha = rep(0, 5),
                                       beta = 0,
+                                      effect = rep(0, 5),
                                       tau = 0.001),
                          n.adapt = n.adapt)
   update(thismodel, n.burn)
   res.bugs = jags.samples(thismodel, 
-                          variable.names = c("alpha", "beta", "tau"),
+                          variable.names = c("alpha", "beta", "effect", "tau"),
                           n.iter = n.iter)
   alpha_post = matrix(res.bugs$alpha, 5, n.iter)
   beta_post = as.numeric(res.bugs$beta)
+  effect_post = matrix(res.bugs$effect, 5, n.iter)
   tau_post = as.numeric(res.bugs$tau)
-  return (list("alpha_post" = alpha_post, "beta_post" = beta_post, "tau_post" = tau_post))
+  return (list("alpha_post" = alpha_post, "beta_post" = beta_post, "effect_post" = effect_post, "tau_post" = tau_post))
 }
 
 naive = function(y, size, n.adapt = 5000, n.burn = 5000, n.iter = 10000) {

@@ -1,9 +1,10 @@
 model {
   for (j in 1:5) {
     y[j] ~ dbin(prob[j], size[j])
-    logit(prob[j]) <- alpha[j] + beta * year[j]
+    logit(prob[j]) <- alpha[j] + beta * year[j] + effect[j]
+    alpha[j] ~ dnorm(0, 0.001)
   }
-  alpha[1:5] ~ dmnorm(mu, Omega)
+  effect[1:5] ~ dmnorm(mu, Omega)
   beta ~ dnorm(0, 0.001)
   Omega <- tau * omega
   tau ~ dgamma(0.001, 0.001)

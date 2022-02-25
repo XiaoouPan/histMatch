@@ -63,22 +63,20 @@ year = c(11, 2, 1, 6, 0)
 fit = mix_effect(y = y, year = year, omega = omega, size = size, mu = rep(0, 5), n.adapt = 5000, n.burn = 5000, n.iter = 10000)
 alpha_post = fit$alpha_post
 beta_post = fit$beta_post
+effect_post = fit$effect_post
 tau_post = fit$tau_post
 
-rowMeans(alpha_post)
-mean(beta_post)
-mean(tau_post)
 ## posterior probability
-temp = rowMeans(alpha_post) + mean(beta_post) * year
+temp = rowMeans(alpha_post) + mean(beta_post) * year + rowMeans(effect_post)
 post_prob = 1 / (1 + exp(-temp))
 
 ## fit the naive model for the trreatment group
 alpha.trt = naive(y = sum(event.trt), size = length(event.trt), n.adapt = 5000, n.burn = 5000, n.iter = 10000)
 ## posterior probability
-temp = mean(alpha.trt) + mean(beta_post) * year[1]
+temp = mean(alpha.trt)
 post_prob_trt = 1 / (1 + exp(-temp))
 
-post_prob_trt - post_prob[1] ## -0.08
+post_prob_trt - post_prob[1] 
 
 
 
